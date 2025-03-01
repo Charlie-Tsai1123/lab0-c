@@ -170,15 +170,50 @@ bool q_delete_dup(struct list_head *head)
 void q_swap(struct list_head *head)
 {
     // https://leetcode.com/problems/swap-nodes-in-pairs/
+    if (!head || list_empty(head))
+        return;
+    struct list_head *current = head;
+    while (current->next != head && current->next->next != head) {
+        struct list_head *move = current->next;
+        list_del(move);
+        list_add(move, current->next);
+        current = move;
+    }
+    return;
 }
 
 /* Reverse elements in queue */
-void q_reverse(struct list_head *head) {}
+void q_reverse(struct list_head *head)
+{
+    if (!head || list_empty(head))
+        return;
+    struct list_head *tail = head;
+    while (head->next != tail) {
+        list_move_tail(head->next, tail);
+        tail = tail->prev;
+    }
+    return;
+}
 
 /* Reverse the nodes of the list k at a time */
 void q_reverseK(struct list_head *head, int k)
 {
     // https://leetcode.com/problems/reverse-nodes-in-k-group/
+    if (k == 1 || !head || list_empty(head) || list_is_singular(head))
+        return;
+    struct list_head *prev = head, *current = head->next;
+    int itGroup = k - 1, counter = q_size(head) / k;
+    while (counter != 0) {
+        itGroup--;
+        list_move(current->next, prev);
+        if (itGroup == 0) {
+            itGroup = k - 1;
+            counter--;
+            prev = current;
+            current = current->next;
+        }
+    }
+    return;
 }
 
 /* Sort elements of queue in ascending/descending order */
