@@ -216,8 +216,53 @@ void q_reverseK(struct list_head *head, int k)
     return;
 }
 
+// q_sort step 2 merge left and right queue
+struct list_head *mergeSort_merge(struct list_head *left,
+                                  struct list_head *right,
+                                  struct list_head *tail,
+                                  bool descend)
+{
+    const struct list_head *tmp = left->prev;
+    while (left != right && right != tail) {
+        const char *left_value = list_entry(left, element_t, list)->value;
+        const char *right_value = list_entry(right, element_t, list)->value;
+        if ((descend && strcmp(left_value, right_value) > 0) ||
+            (!descend && strcmp(left_value, right_value) < 0)) {
+            left = left->next;
+        } else {
+            right = right->next;
+            list_move_tail(right->prev, left);
+        }
+    }
+    return tmp->next;
+}
+
+// q_sort step 1 separate queue into left and right part
+struct list_head *mergeSort_partition(struct list_head *head,
+                                      struct list_head *tail,
+                                      bool descend)
+{
+    if (head->next == tail)
+        return head;
+    struct list_head *fast = head, *middle = head;
+    // becarful singular empty NULL
+    while (fast->next != tail && fast->next->next != tail) {
+        fast = fast->next->next;
+        middle = middle->next;
+    }
+    struct list_head *left = mergeSort_partition(head, middle->next, descend);
+    struct list_head *right = mergeSort_partition(middle->next, tail, descend);
+    return mergeSort_merge(left, right, tail, descend);
+}
+
 /* Sort elements of queue in ascending/descending order */
-void q_sort(struct list_head *head, bool descend) {}
+void q_sort(struct list_head *head, bool descend)
+{
+    if (!head || list_empty(head) || list_is_singular(head))
+        return;
+    mergeSort_partition(head->next, head, descend);
+    return;
+}
 
 /* Remove every node which has a node with a strictly less value anywhere to
  * the right side of it */
