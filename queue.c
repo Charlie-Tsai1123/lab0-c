@@ -227,7 +227,8 @@ struct list_head *mergeSort_merge(struct list_head *left,
         const char *left_value = list_entry(left, element_t, list)->value;
         const char *right_value = list_entry(right, element_t, list)->value;
         if ((descend && strcmp(left_value, right_value) > 0) ||
-            (!descend && strcmp(left_value, right_value) < 0)) {
+            (!descend && strcmp(left_value, right_value) < 0) ||
+            strcmp(left_value, right_value) == 0) {
             left = left->next;
         } else {
             right = right->next;
